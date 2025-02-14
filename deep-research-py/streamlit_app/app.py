@@ -1,23 +1,14 @@
 import streamlit as st
 import asyncio
-import os
-from dotenv import load_dotenv
 
 from core.schemas import ResearchConfig
 from core.research_engine import ResearchEngine
 from core.feedback import generate_feedback
 from integrations.firecrawl_client import FirecrawlClient
 
-# Try to load .env file, but don't fail if it doesn't exist
-try:
-    load_dotenv()
-except:
-    pass
-
-# Get config from environment or streamlit secrets
+# Get config from streamlit secrets
 def get_config(key: str) -> str:
-    # Try streamlit secrets first, then environment variables
-    return st.secrets.get(key) or os.getenv(key)
+    return st.secrets.get(key, "")
 
 # Initialize components
 @st.cache_resource
