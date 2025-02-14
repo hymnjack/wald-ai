@@ -1,14 +1,19 @@
 import streamlit as st
 import asyncio
+import os
 
+# Local imports
 from core.schemas import ResearchConfig
 from core.research_engine import ResearchEngine
 from core.feedback import generate_feedback
 from integrations.firecrawl_client import FirecrawlClient
 
-# Get config from streamlit secrets
+# Get config from environment or streamlit secrets
 def get_config(key: str) -> str:
-    return st.secrets.get(key, "")
+    # Try streamlit secrets first, then environment variables
+    if hasattr(st, "secrets"):
+        return st.secrets.get(key, "")
+    return os.getenv(key, "")
 
 # Initialize components
 @st.cache_resource
