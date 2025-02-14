@@ -23,7 +23,7 @@ def init_components():
     return client, engine
 
 def main():
-    st.title("Deep Research AI")
+    st.title("Wald Deep Research")
     
     # Initialize
     client, engine = init_components()
@@ -31,36 +31,46 @@ def main():
     # Get query from user
     query = st.text_input("What would you like to research?")
     
+    # Initialize session state for questions and answers if not exists
+    if 'questions' not in st.session_state:
+        st.session_state.questions = None
+        st.session_state.answers = []
+    
     if query:
-        with st.spinner("Researching..."):
-            # Create progress bar
-            progress = st.progress(0)
-            
-            # Progress callback
-            def update_progress(p):
-                total = p.total_depth * p.total_breadth
-                current = (p.current_depth - 1) * p.total_breadth + p.current_breadth
-                progress.progress(current / total)
-            
-            # Run research
-            async def run_research():
-                try:
-                    # Generate follow-up questions
-                    questions = await generate_feedback(query)
-                    
-                    # Display questions
-                    st.subheader("Follow-up Questions")
-                    answers = []
-                    for q in questions:
-                        answer = st.text_input(q)
-                        answers.append(answer)
-                    
-                    if all(answers):  # Only proceed if all questions are answered
+        # Generate questions only if we don't have them or if query changed
+        if st.session_state.questions is None:
+            with st.spinner("Generating questions..."):
+                st.session_state.questions = asyncio.run(generate_feedback(query))
+                st.session_state.answers = [""] * len(st.session_state.questions)
+        
+        # Display questions and get answers
+        st.write('Follow-up Questions:')
+        for i, question in enumerate(st.session_state.questions):
+            st.session_state.answers[i] = st.text_input(f"Q{i+1}: {question}", key=f"answer_{i}")
+        
+        # Only show the research button when all questions are answered
+        all_answered = all(st.session_state.answers)
+        if all_answered and st.button("Start Research"):
+            with st.spinner("Researching..."):
+                # Create progress bar and callback
+                progress = st.progress(0)
+                
+                def update_progress(p):
+                    total = p.total_depth * p.total_breadth
+                    current = (p.current_depth - 1) * p.total_breadth + p.current_breadth
+                    progress.progress(current / total)
+                
+                # Set the progress callback on the engine
+                engine.on_progress = update_progress
+                
+                # Run research
+                async def run_research():
+                    try:
                         # Combine all information
                         combined_query = (
                             f"Initial Query: {query}\n"
                             "Follow-up Questions and Answers:\n" +
-                            "\n".join(f"Q: {q}\nA: {a}" for q, a in zip(questions, answers))
+                            "\n".join(f"Q: {q}\nA: {a}" for q, a in zip(st.session_state.questions, st.session_state.answers))
                         )
                         
                         # Run research with fixed depth and breadth
@@ -84,11 +94,11 @@ def main():
                         for url in result.visited_urls:
                             st.markdown(f"- {url}")
                         
-                except Exception as e:
-                    st.error(f"Error during research: {str(e)}")
-            
-            # Run async research
-            asyncio.run(run_research())
+                    except Exception as e:
+                        st.error(f"Error during research: {str(e)}")
+                
+                # Run async research
+                asyncio.run(run_research())
 
 if __name__ == "__main__":
     main()

@@ -4,7 +4,7 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
 
-from src.core.schemas import SearchQuery
+from core.schemas import SearchQuery
 
 class QueryList(BaseModel):
     """List of search queries."""

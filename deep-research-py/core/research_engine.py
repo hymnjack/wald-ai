@@ -5,14 +5,14 @@ from bs4 import BeautifulSoup
 from langchain_openai import ChatOpenAI
 import os
 
-from src.core.schemas import (
+from core.schemas import (
     ResearchConfig,
     ResearchProgress,
     ResearchResult,
     SearchQuery
 )
-from src.core.query_generator import QueryGenerator
-from src.integrations.firecrawl_client import FirecrawlClient
+from core.query_generator import QueryGenerator
+from integrations.firecrawl_client import FirecrawlClient
 
 class ResearchEngine:
     """Core research engine that performs iterative deep research."""
