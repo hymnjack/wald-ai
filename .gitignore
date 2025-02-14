@@ -44,4 +44,6 @@ bun.lockb
 # .gitignore
 
 # Streamlit secrets
-/Users/aniketsingh/deep-research/deep-research-py/.streamlit/secrets.toml
+/Users/aniketsingh/deep-research/deep-research-py/.streamlit/secrets.tom
+# Env
+/Users/aniketsingh/deep-research/deep-research-py/.env
