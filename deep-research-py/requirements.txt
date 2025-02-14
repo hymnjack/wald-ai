@@ -11,3 +11,4 @@ redis==4.6.0
 firecrawl-py==0.1.0
 rich==13.5.2
 aiohttp==3.8.5
+openai>=1.0.0 
